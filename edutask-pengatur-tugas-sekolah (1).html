@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EduTask - Pengatur Tugas Sekolah</title>
+    <style>
+        /* Pengaturan Dasar & Warna */
+        :root {
+            --primary: #4f46e5;
+            --primary-hover: #4338ca;
+            --bg-color: #f3f4f6;
+            --card-bg: #ffffff;
+            --text-dark: #1f2937;
+            --text-muted: #6b7280;
+            --danger: #ef4444;
+            --success: #10b981;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-dark);
+            display: flex;
+            justify-content: center;
+            padding: 40px 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            background-color: var(--card-bg);
+            width: 100%;
+            max-width: 600px;
+            border-radius: 16px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+            padding: 30px;
+        }
+
+        /* Header */
+        header {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        header h1 {
+            color: var(--primary);
+            font-size: 28px;
+            margin-bottom: 5px;
+        }
+
+        header p {
+            color: var(--text-muted);
+            font-size: 14px;
+        }
+
+        /* Form Input */
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 25px;
+            background: #f9fafb;
+            padding: 15px;
+            border-radius: 12px;
+            border: 1px solid #e5e7eb;
+        }
+
+        .row {
+            display: flex;
+            gap: 10px;
+        }
+
+        input, select {
+            padding: 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            font-size: 14px;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        input:focus, select:focus {
+            border-color: var(--primary);
+        }
+
+        input[type="text"] {
+            flex: 2;
+        }
+
+        select {
+            flex: 1;
+        }
+
+        button.add-btn {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        button.add-btn:hover {
+            background-color: var(--primary-hover);
+        }
+
+        /* Statistik Tugas */
+        .stats {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+            font-size: 14px;
+            color: var(--text-muted);
+            padding-bottom: 10px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        /* Daftar Tugas */
+        ul {
+            list-style: none;
+        }
+
+        li {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            border: 1px solid #e5e7eb;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            transition: all 0.2s;
+            background: white;
+        }
+
+        li:hover {
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        }
+
+        li.completed {
+            background-color: #f9fafb;
+            opacity: 0.7;
+        }
+
+        li.completed .task-title {
+            text-decoration: line-through;
+            color: var(--text-muted);
+        }
+
+        .task-info {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .task-title {
+            font-weight: 600;
+            font-size: 16px;
+        }
+
+        .task-meta {
+            display: flex;
+            gap: 10px;
+            font-size: 12px;
+            align-items: center;
+        }
+
+        .badge {
+            background-color: #e0e7ff;
+            color: var(--primary);
+            padding: 3px 8px;
+            border-radius: 6px;
+            font-weight: 600;
+        }
+
+        .deadline {
+            color: var(--text-muted);
+        }
+
+        /* Tombol Aksi */
+        .actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn-action {
+            border: none;
+            padding: 8px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 600;
+            transition: opacity 0.2s;
+        }
+
+        .btn-action:hover {
+            opacity: 0.85;
+        }
+
+        .btn-done {
+            background-color: var(--success);
+            color: white;
+        }
+
+        .btn-delete {
+            background-color: var(--danger);
+            color: white;
+        }
+
+        .empty-state {
+            text-align: center;
+            color: var(--text-muted);
+            padding: 30px 0;
+            font-size: 14px;
+        }
+
+        /* Responsif untuk layar HP */
+        @media (max-width: 480px) {
+            .row {
+                flex-direction: column;
+            }
+            li {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 12px;
+            }
+            .actions {
+                width: 100%;
+                justify-content: flex-end;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h1>📚 EduTask</h1>
+        <p>Catat dan kelola tugas sekolahmu agar tidak terlewat</p>
+    </header>
+
+    <!-- Form Tambah Tugas -->
+    <div class="input-group">
+        <div class="row">
+            <input type="text" id="taskInput" placeholder="Nama tugas (misal: Mengerjakan LKS Bab 3)..." required>
+            <select id="subjectInput">
+                <option value="Matematika">Matematika</option>
+                <option value="B. Indonesia">B. Indonesia</option>
+                <option value="B. Inggris">B. Inggris</option>
+                <option value="IPA / Sains">IPA / Sains</option>
+                <option value="IPS">IPS</option>
+                <option value="Informatika">Informatika</option>
+                <option value="Lainnya">Lainnya</option>
+            </select>
+        </div>
+        <div class="row">
+            <input type="date" id="dateInput" style="flex: 1;">
+            <button class="add-btn" onclick="addTask()" style="flex: 1;">+ Tambah Tugas</button>
+        </div>
+    </div>
+
+    <!-- Info Statistik -->
+    <div class="stats">
+        <span id="totalTasks">Total Tugas: 0</span>
+        <span id="completedTasks">Selesai: 0</span>
+    </div>
+
+    <!-- Daftar Tugas -->
+    <ul id="taskList"></ul>
+</div>
+
+<script>
+    // Mengambil data dari penyimpanan browser (Local Storage)
+    let tasks = JSON.parse(localStorage.getItem('schoolTasks')) || [];
+
+    // Menampilkan tugas saat halaman pertama kali dibuka
+    renderTasks();
+
+    function addTask() {
+        const taskInput = document.getElementById('taskInput');
+        const subjectInput = document.getElementById('subjectInput');
+        const dateInput = document.getElementById('dateInput');
+
+        const title = taskInput.value.trim();
+        const subject = subjectInput.value;
+        const deadline = dateInput.value;
+
+        if (title === '') {
+            alert('Silakan tulis nama tugasnya terlebih dahulu!');
+            return;
+        }
+
+        const newTask = {
+            id: Date.now(),
+            title: title,
+            subject: subject,
+            deadline: deadline || 'Tanpa tenggat',
+            completed: false
+        };
+
+        tasks.push(newTask);
+        saveAndRender();
+
+        // Reset input
+        taskInput.value = '';
+        dateInput.value = '';
+    }
+
+    function toggleComplete(id) {
+        tasks = tasks.map(task => {
+            if (task.id === id) {
+                return { ...task, completed: !task.completed };
+            }
+            return task;
+        });
+        saveAndRender();
+    }
+
+    function deleteTask(id) {
+        tasks = tasks.filter(task => task.id !== id);
+        saveAndRender();
+    }
+
+    function saveAndRender() {
+        localStorage.setItem('schoolTasks', JSON.stringify(tasks));
+        renderTasks();
+    }
+
+    function renderTasks() {
+        const taskList = document.getElementById('taskList');
+        const totalSpan = document.getElementById('totalTasks');
+        const completedSpan = document.getElementById('completedTasks');
+
+        taskList.innerHTML = '';
+
+        if (tasks.length === 0) {
+            taskList.innerHTML = '<div class="empty-state">Belum ada tugas. Yuk tambahkan tugas barumu! 🎉</div>';
+        }
+
+        let completedCount = 0;
+
+        tasks.forEach(task => {
+            if (task.completed) completedCount++;
+
+            const li = document.createElement('li');
+            if (task.completed) li.classList.add('completed');
+
+            li.innerHTML = `
+                <div class="task-info">
+                    <span class="task-title">${task.title}</span>
+                    <div class="task-meta">
+                        <span class="badge">${task.subject}</span>
+                        <span class="deadline">📅 Tenggat: ${task.deadline}</span>
+                    </div>
+                </div>
+                <div class="actions">
+                    <button class="btn-action btn-done" onclick="toggleComplete(${task.id})">
+                        ${task.completed ? 'Batal' : 'Selesai'}
+                    </button>
+                    <button class="btn-action btn-delete" onclick="deleteTask(${task.id})">Hapus</button>
+                </div>
+            `;
+
+            taskList.appendChild(li);
+        });
+
+        totalSpan.textContent = `Total Tugas: ${tasks.length}`;
+        completedSpan.textContent = `Selesai: ${completedCount}`;
+    }
+</script>
+
+</body>
+</html>
